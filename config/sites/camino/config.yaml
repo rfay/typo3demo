@@ -1,4 +1,4 @@
-base: /camino/
+base: /
 dependencies:
   - typo3/theme-camino
 languages:
