@@ -17,6 +17,21 @@ corepack_enable: false
 hooks:
   post-start:
     - composer: install
+  pre-share:
+    - exec: |
+        for f in config/sites/*/config.yaml; do
+          cp "$f" "$f.pre-share-backup"
+          newbase=$(yq '.base' "$f" | sed -E 's#^https?://[^/]+##')
+          [ -z "$newbase" ] && newbase="/"
+          yq -i ".base = \"$newbase\"" "$f"
+        done
+        typo3 cache:flush
+  post-share:
+    - exec: |
+        for f in config/sites/*/config.yaml.pre-share-backup; do
+          mv "$f" "${f%.pre-share-backup}"
+        done
+        typo3 cache:flush
 
 # Key features of DDEV's config.yaml:
 
