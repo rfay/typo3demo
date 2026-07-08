@@ -1,65 +1,32 @@
-# TYPO3 CMS Base Distribution
+# TYPO3 Demo Project
 
-Get going quickly with TYPO3 CMS.
+This is a demonstration project used to show [DDEV](https://ddev.com/) features with TYPO3,
+particularly `ddev share` and Git worktrees. It's based on the official Camino theme with TYPO3 CMS Base Distribution, but
+this README documents the demo-specific setup rather than upstream TYPO3 usage.
 
-## Prerequisites
+## Related blog posts
 
-* PHP 8.2
-* [Composer](https://getcomposer.org/download/)
+* [DDEV Share with TYPO3](https://ddev.com/blog/ddev-share-with-typo3)
+* [Git Worktree with TYPO3](https://ddev.com/blog/git-worktree-with-typo3)
 
-## Quickstart
+## Notable configuration
 
-* `composer create-project typo3/cms-base-distribution project-name ^13`
-* `cd project-name`
+* [config/sites/camino/config.yaml](config/sites/camino/config.yaml) uses `path: /` instead of
+  `path: /camino`, and its `base` has no URL (just `/`), so the site works whether it's the only
+  site on the project or is being shared under a dynamically generated URL.
+* [.ddev/config.yaml](.ddev/config.yaml) defines `pre-share` and `post-share` hooks that rewrite
+  the `base` (if needed) in each site's `config.yaml` to match the temporary share URL, then restore the
+  original values afterward. This is what makes `ddev share` work cleanly with TYPO3's
+  multi-site configuration.
+* A `post-start` hook runs `composer install` automatically, so a fresh checkout (or new
+  worktree) is ready to go as soon as `ddev start` finishes.
 
-Note that this distribution installs most, but not all of the TYPO3 CMS core extensions.
-Depending on your need you might also want to install other TYPO3 extensions from
-[packagist.org](https://packagist.org/?type=typo3-cms-framework).
+## Usage
 
-### Setup
-
-To start an interactive installation, you can do so by executing the following
-command and then follow the wizard:
-
-```bash
-composer exec typo3 setup
-```
-
-### Setup unattended (optional)
-
-If you're a more advanced user, you might want to leverage the unattended installation.
-To do this, you need to execute the following command and substitute the arguments
-with your own environment configuration.
-
-```bash
-export TYPO3_SETUP_ADMIN_PASSWORD=$(tr -dc "_A-Za-z0-9#=$()/" < /dev/urandom | head -c24)
-composer exec -- typo3 setup \
-    --no-interaction \
-    --server-type=other \
-    --driver=sqlite \
-    --admin-username=admin \
-    --admin-email="info@example.com" \
-    --project-name="My TYPO3 Project" \
-    --create-site="http://localhost:8000/"
-echo "Admin password: ${TYPO3_SETUP_ADMIN_PASSWORD}"
-```
-
-### Development server
-
-While it's advised to use a more sophisticated web server such as
-Apache 2 or Nginx, you can instantly run the project by using PHPs` built-in
-[web server](https://secure.php.net/manual/en/features.commandline.webserver.php).
-
-* `TYPO3_CONTEXT=Development php -S localhost:8000 -t public`
-* open your browser at "http://localhost:8000"
-
-Please be aware that the built-in web server is single threaded and only meant
-to be used for development.
-
-##  Next steps
-
-* [Getting Started with TYPO3](https://docs.typo3.org/permalink/t3start:start)
-* [Create a Site Package](https://docs.typo3.org/permalink/t3sitepackage:start)
+* `ddev start`
+* Use `ddev composer` instead of a locally installed `composer` for any Composer commands, so
+  dependencies are installed with the PHP version and extensions configured in the DDEV
+  container.
 
 ## License
 
